@@ -1,0 +1,17 @@
+# Python environment & cache
+venv/
+__pycache__/
+*.pyc
+
+# Heavy data & Audio files
+*.wav
+*.mp3
+*.flac
+
+# Model checkpoints
+*.pth
+*.onnx
+
+# IDE settings
+.antigravity/
+.idea/
