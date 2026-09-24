@@ -1,6 +1,7 @@
 import os
 import glob
 import re
+import argparse
 import numpy as np
 import librosa
 
@@ -135,9 +136,11 @@ def process_dataset(audio_dir, lab_dir, output_dir):
     features and labels, and saves compressed numpy arrays (.npz).
     """
     os.makedirs(output_dir, exist_ok=True)
-    audio_files = glob.glob(os.path.join(audio_dir, "**/*.wav"), recursive=True) + \
-                  glob.glob(os.path.join(audio_dir, "**/*.mp3"), recursive=True) + \
-                  glob.glob(os.path.join(audio_dir, "**/*.flac"), recursive=True)
+    
+    valid_extensions = ["*.wav", "*.mp3", "*.flac", "*.m4a", "*.ogg"]
+    audio_files = []
+    for ext in valid_extensions:
+        audio_files.extend(glob.glob(os.path.join(audio_dir, f"**/{ext}"), recursive=True))
 
     print(f"Found {len(audio_files)} audio tracks to process...")
     
@@ -148,7 +151,7 @@ def process_dataset(audio_dir, lab_dir, output_dir):
         # Search for matching .lab file
         lab_path = os.path.join(lab_dir, f"{filename}.lab")
         if not os.path.exists(lab_path):
-            # Try recursive search if structures differ
+            # Try recursive search if directory structures differ
             matching_labs = glob.glob(os.path.join(lab_dir, f"**/{filename}.lab"), recursive=True)
             if matching_labs:
                 lab_path = matching_labs[0]
@@ -176,15 +179,17 @@ def process_dataset(audio_dir, lab_dir, output_dir):
             print(f"Error processing {filename}: {e}")
 
 if __name__ == "__main__":
-    # Local test paths or dataset paths
-    AUDIO_DIRECTORY = "./dataset/audio"
-    LAB_DIRECTORY = "./dataset/annotations"
-    OUTPUT_DIRECTORY = "./dataset/processed"
+    parser = argparse.ArgumentParser(description="Preprocess audio and .lab files into training tensors.")
+    parser.add_argument("--audio_dir", type=str, default="./dataset/audio", help="Directory containing audio files")
+    parser.add_argument("--lab_dir", type=str, default="./dataset/annotations", help="Directory containing .lab files")
+    parser.add_argument("--output_dir", type=str, default="./dataset/processed", help="Directory to save .npz files")
     
-    if os.path.exists(AUDIO_DIRECTORY) and os.path.exists(LAB_DIRECTORY):
-        process_dataset(AUDIO_DIRECTORY, LAB_DIRECTORY, OUTPUT_DIRECTORY)
+    args = parser.parse_args()
+
+    if os.path.exists(args.audio_dir) and os.path.exists(args.lab_dir):
+        process_dataset(args.audio_dir, args.lab_dir, args.output_dir)
     else:
         print("Directory setup check:")
-        print("1. Place your track audio (.wav/.mp3) in ./dataset/audio")
-        print("2. Place corresponding Isophonics/MARL .lab files in ./dataset/annotations")
-        print("3. Run this script to generate preprocessed .npz tensors for PyTorch training.")
+        print(f"1. Place audio files in: {args.audio_dir}")
+        print(f"2. Place corresponding .lab files in: {args.lab_dir}")
+        print("3. Run: python preprocess.py --audio_dir <path> --lab_dir <path> --output_dir <path>")
