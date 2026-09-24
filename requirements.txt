@@ -1,0 +1,28 @@
+# Audio & Feature Processing
+librosa>=0.10.0,<0.11
+scipy>=1.10.0,<2
+numpy>=1.24.0,<3
+soundfile>=0.12.0
+
+# Evaluation metric (majmin chord accuracy)
+mir_eval>=0.7
+
+# Deep Learning Framework
+# Pin <2.6: torch.onnx.export(dynamo=False) is reliably honored below 2.6.
+# torch 2.6+ routes export through dynamo regardless, which is what hung on the GRU.
+torch>=2.4.0,<2.6
+torchaudio>=2.4.0,<2.6
+
+# ONNX Runtime for local inference
+# protobuf<6 is required by Colab's google-ai-generativelanguage, grpcio-status, ydf.
+onnx>=1.16.0,<1.18
+onnxruntime>=1.17.0,<1.20
+onnxscript>=0.1
+protobuf>=4.25,<6
+
+# Utilities
+tqdm
+matplotlib
+
+# Jupyter (only needed for local dev; Colab already has it)
+# jupyter
